@@ -7,6 +7,11 @@ struct tip {
 	char isbn[18];
 };
 
+void clear() {
+    char c;
+    while ((c = getchar() != '\n') && (c != EOF));
+}
+
 
 void view_tip() {
 
@@ -14,16 +19,18 @@ void view_tip() {
    FILE *file;
    
    if ( (file=fopen("tips.dat","r")) == NULL) {
+     return;
+   }
+   if (feof(file)) {
      printf("No tips\n");
 	 return;
    }
-   
    while(1) {
      fread(&tip, sizeof(tip), 1, file);
      if (feof(file)) {
        break;
      }
-     printf("Tip name %s\tAuthor%s\tISBN: %s\n", tip.name, tip.author, tip.isbn);
+     printf("Tip name: %s\tAuthor: %s\tISBN: %s\n", tip.name, tip.author, tip.isbn);
      
    }
 
@@ -96,31 +103,34 @@ void add_tip() {
    scanf("%18s", &isbn);
    
    if (validate_isbn(isbn)==1) {
-   
+ 	strncpy(&tip.name, &name, 256);
+	strncpy(&tip.author, &author, 256);
+	strncpy(tip.isbn, isbn, 18);
+  
    } else {
 	 printf("Invalid ISBN, try again:\n");
 	 scanf("%s", &isbn);	 
-   }
-   strncpy(&tip.name, &name, 256);
-   strncpy(&tip.author, &author, 256);
-   strncpy(tip.isbn, isbn, 18);
-   //tip.name = name;
-   //tip.author = author;
-   //tip.isbn = isbn;
-   
+   }  
+
    fwrite(&tip,sizeof(tip),1, file);
-   
+	
    fclose(file);
+   
    return;
 }
 
 void remove_tip() {
    struct tip tip;
    FILE *file;
-   int choise;
+   char choise;
    int i = 1;
    if ( (file=fopen("tips.dat","r")) == NULL) {
-     printf("Error 1\n");
+     printf("No tip file\n");
+	 return;
+   }
+   if (feof(file)) {
+	 printf("No tips to remove");
+	 return;
    }
    
    while(1) {
@@ -131,11 +141,19 @@ void remove_tip() {
      printf("(%i) Tip name %s\tAuthor%s\tISBN: %s\n", i, tip.name, tip.author, tip.isbn);
      i++;
    }
-
+   if (i == 1) {
+	 printf("No tips for deletion!\n");
+	 return;
+   }
 	  
    printf("Select the number of the tip you wish to remove:\n");
-   scanf("%i", &choise);
+   clear();
+   //scanf("%1s", &choise);
+   choise = getchar();
+   //   printf("choise %c", choise);
    fclose(file);
+   int x = choise - '0';
+   
    if ( (file=fopen("tips.dat","r")) == NULL) {
      printf("Error 1\n");
    }
@@ -151,8 +169,8 @@ void remove_tip() {
      if (feof(file)) {
        break;
      }
-	 printf("read block %i with data: %s, %s, %s", cur, tip.name, tip.author, tip.isbn);
-	 if (cur != choise) {
+	 //	 printf("read block %i with data: %s, %s, %s", cur, tip.name, tip.author, tip.isbn);
+	 if (cur != x) {
 	     fwrite(&tip,sizeof(tip),1, tmpfile);
 	 }
 	 cur = cur + 1;
@@ -172,26 +190,29 @@ void remove_tip() {
 
 int main(void) {
 
-  int choise;
-  
-  while (1) {
-    printf("Choose a function\n1 View tips\n2 Add a tip\n3 Remove a tip\n4 Quit\n");
-    scanf("%d", &choise);
+  char choise = 0;
+    
+  while(1) {
+	printf("Choose a function: (V)iew tips. (A)dd a tip, (D)elete a tip, (Q)uit\n");
+	choise = (char) getchar();
+	//	scanf("%1s", &choise);
     switch(choise) {
-    case 1:
-      view_tip();
+    case 'v': case 'V':
+	  view_tip();
       break;
-    case 2:
-      add_tip();
+    case 'a': case 'A':
+	  add_tip();
       break;
-    case 3:
+    case 'd': case 'D':
       remove_tip();
       break;
-    case 4:
+    case 'q': case 'Q':
       return 0;
     default:
-      printf("A value must be specified\n");
+      printf("Invalid input!\n");
+	  break;
     }
+	clear();
   }
   return 0;
 }
