@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "radix.h"                                                                                         
 
@@ -50,7 +51,7 @@ int insert(node *n, char *str) {
   int found;
   for (int i=0; i < strlen(str); i++) {
 	found = 0;
-   	printf("%d,%c, ",i, str[i]);
+	//   	printf("%d,%c, ",i, str[i]);
 	if (ptr->key == '\0') {
 	  ptr->key = str[i];
 	  ptr->next = create_node();
@@ -75,7 +76,7 @@ int insert(node *n, char *str) {
 	}
 	
   }
-  printf("\n");
+  // printf("\n");
   return 0;
 }
 
@@ -93,7 +94,6 @@ void print(node *no) {
 		printf(") ");
 	  }
 	}
-	
 	ptr = ptr->next;
   }
 }
@@ -102,19 +102,52 @@ void print(node *no) {
 int main() {
   list *tree;
   tree = create_list();
+  FILE *fp = fopen("output.txt", "r");
+  char* buf = malloc(sizeof(char)*128);
+  if (!fp) {
+	return 0;
+  }
+  char c;
+  size_t i = 0;
+	
+  while ((c = getc(fp)) != EOF) {
+	//	printf("%d, ", i);
+	//printf("%c",c);
+	if (c == '\n') {
+	  char* str = malloc(sizeof(char)*(i));
+	  for (size_t j = 0; j < i-1; j++) {
+		str[j] = buf[j];
+	  }
+	  str[i] = '\0';
+	  free(buf);
+	  char* buf = malloc(sizeof(char)*128);
+	  //printf("%s\n", str);
+	  
+	  insert(tree->next, str);
+	  i = 0;
+	} else {
+	  buf[i] = c;
+	  //printf("%c", c);
+	  i++;
+	}
   
-  if (tree == NULL) return 0;
-  node *tmp = tree->next;
-  insert(tmp, "jopas");
+  }
+  fclose(fp);
+  printf("done, sleeping for 30 secs\n");
+  sleep(30);
 
+  //if (tree == NULL) return 0;
+  //node *tmp = tree->next;
+  
+  
+  /*  insert(tmp, "jopas");
   insert(tmp, "jotain");
-
   insert(tmp, "jokin");
   insert(tmp, "jokinen");
   insert(tmp, "jotakuta");
   insert(tmp, "jopa");
   insert(tmp, "jokin");
-
-  print(tmp);
+  */
+  print(tree->next);
   return 0;
 }
