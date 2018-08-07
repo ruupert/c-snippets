@@ -23,7 +23,7 @@ list* create_list(void) {
   tmp->next = malloc(sizeof(node));
   return tmp;
 }
-/*
+
 int find_char(node *n, char c) {
   printf("\t enter find_char() %c\n", c);
   if (n == NULL) {
@@ -32,11 +32,9 @@ int find_char(node *n, char c) {
   }
   node* tmp = n;
   do {
-	if (tmp->key == ) {
+	if (tmp->key == c) {
 	  return 1;
-	} else {
-	  
-	}
+	} 
 	if (tmp->next != NULL) {
 	  tmp = tmp->next;
 	}
@@ -45,9 +43,34 @@ int find_char(node *n, char c) {
   
   return 0;
 }
-*/
+
+int find(node *n, char* str) {
+  int len = strlen(str);
+  node *ptr = n;
+  int found;
+  for (int i = 0; i < len; i++) {
+	found = 0;
+	while(ptr->next != NULL) {
+	  printf("%c == %c\n", ptr->key, str[i]);
+	  if (ptr->key == str[i]) {
+		ptr = ptr->childs;
+		found = 1;
+		break;
+	  } else {
+		ptr = ptr->next;
+	  }
+	}
+	if (found == 0) {
+	  return 0;
+	}
+  }
+  return 1;
+}
+
+
 int insert(node *n, char *str) {
   node *ptr = n;
+  node *last = NULL; // since we are in the "head"
   int found;
   for (int i=0; i < strlen(str); i++) {
 	found = 0;
@@ -56,10 +79,13 @@ int insert(node *n, char *str) {
 	  ptr->key = str[i];
 	  ptr->next = create_node();
 	  ptr->childs = create_node();
+	  ptr->childs->parent = ptr;
+	  last = ptr;
 	  ptr = ptr->childs;
 	} else {
 	  while (ptr->next != NULL) {
 		if (ptr->key == str[i]) {
+		  last = ptr;
 		  ptr = ptr->childs;
 		  found = 1;
 		  break; // while loop
@@ -71,6 +97,8 @@ int insert(node *n, char *str) {
 		ptr->next = create_node();
 		ptr->key = str[i];
 		ptr->childs = create_node();
+		ptr->childs->parent = last;
+		last = ptr;
 		ptr = ptr->childs;
 	  } 
 	}
@@ -80,18 +108,27 @@ int insert(node *n, char *str) {
   return 0;
 }
 
+char* spaces(int count) {
+  char* res = malloc(sizeof(char)*(count+1));
+  int i = 0;
+  for (; i < count; i++) {
+	res[i] = ' ';
+  }
+  res[i+1] = '\0';
+  return res;
+}
 
-void print(node *no) {
+void print(node *no, int lvl) {
   node *ptr = no;
   node *tmp;
   while (ptr->next != NULL) {
-	printf("key: %c ", ptr->key);
+	printf("%c",  ptr->key);
 	if (ptr->childs != NULL) {
 	  tmp = ptr->childs;
 	  if (tmp->key != '\0') {
-		printf("(");
-		print(tmp);
-		printf(") ");
+		printf(" ( " );
+		print(tmp, lvl+1);
+		printf(" ) ");
 	  }
 	}
 	ptr = ptr->next;
@@ -102,7 +139,7 @@ void print(node *no) {
 int main() {
   list *tree;
   tree = create_list();
-  FILE *fp = fopen("output.txt", "r");
+  FILE *fp = fopen("words.txt", "r");
   char* buf = malloc(sizeof(char)*128);
   if (!fp) {
 	return 0;
@@ -133,8 +170,12 @@ int main() {
   
   }
   fclose(fp);
-  printf("done, sleeping for 30 secs\n");
-  sleep(30);
+
+
+  int res = find(tree->next, "beer");
+  printf("found %d", res);
+  printf("done, sleeping for 5 secs\n");
+  sleep(5);
 
   //if (tree == NULL) return 0;
   //node *tmp = tree->next;
@@ -148,6 +189,6 @@ int main() {
   insert(tmp, "jopa");
   insert(tmp, "jokin");
   */
-  print(tree->next);
+  print(tree->next, 0);
   return 0;
 }
