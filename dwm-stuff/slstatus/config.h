@@ -53,7 +53,8 @@ static const struct arg args[] = {
 	/* function format          argument */
   //	{ cpu_perc, "[CPU %3s%%] ", NULL    },
   //	{ ram_perc, "[RAM %2s%%] ", NULL    },
-  { myvol_perc, "%s", "/dev/mixer1" },
+    { myvol_perc, "%s", "/dev/mixer1" },
 	{ datetime, "%s",       "%F %T" },
   	{ mybattery_perc, " %2s%", NULL    },
+  	{ mytemp_perc, " %2s%", NULL    },
 };

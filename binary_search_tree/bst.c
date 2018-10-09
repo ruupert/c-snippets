@@ -226,15 +226,50 @@ void test_tree(int low_val, int high_val) {
  
 }
 
+int compare_trees(struct Tree *tree1, struct Tree *tree2) {
+  if (tree1 != NULL && tree2 != NULL) {
+	struct Node *node1 = tree1->root;
+	struct Node *node2 = tree2->root;
+	return compare_nodes(node1, node2);	
+  } else {
+	return 0;
+  }
 
-int main(void) {
+}
+
+int compare_nodes(struct Node *node1, struct Node *node2) {
+  if (node1->key == node2->key) {
+	int left = -1;
+	int right = -5;
+	if (node1->left != NULL && node2->right != NULL) {
+	  left = compare_nodes(node1->left, node2->left); 
+	} else {
+	  return 0;
+	}
+	if (node1->right != NULL && node2->right != NULL) {
+	  right = compare_nodes(node1->right, node2->right);
+	} else {
+	  return 0;
+	}
+	if (left == right) {
+	  return 1;
+	} else {
+	  return 0;
+	}
+	
+  } else {
+	return 0;
+  }
+}
+
+/*int main(void) {
 
   //  test_tree(1,100);
   //test_tree(1,1000);
   //test_tree(1,10000);
   //test_tree(1,100000);
   
-    // my testing lines
+  // my testing lines
 
   struct Tree *tr = malloc(sizeof(struct Tree));
   insert(tr, 5);
@@ -257,3 +292,5 @@ int main(void) {
   printf("height: %i", max_depth(tr->root));
   
 }
+*/
+

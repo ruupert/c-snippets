@@ -65,7 +65,7 @@ myvol_perc(const char *card)
 	setlocale(LC_ALL, "");
 
 	
-	char *buf = malloc(sizeof(char)*30);
+	char *buf = malloc(sizeof(char));
 	if (v==0) {
 	  sprintf(buf,"%lc", 0x2800);
 	} else if (v > 0 && v <= (10*257)) {
@@ -74,11 +74,7 @@ myvol_perc(const char *card)
 	   sprintf(buf,"%lc", lowmid[(arc4random() % ((unsigned)27))]);
 	} else if (v > (20*257) && v <= (30*257)) {
 	   sprintf(buf,"%lc", midlow[(arc4random() % ((unsigned)57))]);
-	} else if (v > (30*257) && v <= (40*257)) {
-	   sprintf(buf,"%lc", mid[(arc4random() % ((unsigned)70))]);
-	} else if (v > (40*257) && v <= (50*257)) {
-	   sprintf(buf,"%lc", mid[(arc4random() % ((unsigned)70))]);
-	} else if (v > (50*257) && v <= (60*257)) {
+	} else if (v > (30*257) && v <= (60*257)) {
 	   sprintf(buf,"%lc", mid[(arc4random() % ((unsigned)70))]);
 	} else if (v > (60*257) && v <= (70*257)) {
 	   sprintf(buf,"%lc", midhigh[(arc4random() % ((unsigned)57))]);

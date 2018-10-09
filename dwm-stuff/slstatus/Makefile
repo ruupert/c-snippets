@@ -26,6 +26,7 @@ COM =\
 	components/user\
 	components/volume\
 	components/myvolume\
+	components/mytemp\
 	components/wifi
 
 all: slstatus

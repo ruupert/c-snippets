@@ -16,6 +16,8 @@
 
 #include <X11/Xlib.h>
 
+#define RED   "\033[0;31m"
+
 //char *tzutc = "UTC"
 char *tzhelsinki = "Europe/Helsinki";
 
@@ -107,31 +109,30 @@ batterylife(void) {
   sysctlbyname("hw.acpi.battery.time", &time, &len, NULL, 0);
   sysctlbyname("hw.acpi.battery.life", &life, &len, NULL, 0);
   
-  if (state == 0) {
-	if (life >= 84) {
-	  sprintf(res, "%lc %lc", (wint_t)128267, 0x2587);
-	  
-	} else if (life < 84 && life >= 68) {
-	  sprintf(res, "%lc %lc", (wint_t)128267, 0x2586);
-	  
-	} else if (life < 68 && life >= 52) {
-	  sprintf(res, "%lc %lc", (wint_t)128267, 0x2585);
-
-	} else if (life < 52 && life >= 36) {
-	  sprintf(res, "%lc %lc", (wint_t)128267, 0x2583);
-	  
-	} else if (life < 36 && life >= 16) {
-	  sprintf(res, "%lc %lc", (wint_t)128267, 0x2582);
-	  
-	} else if (life < 16) {
-	  sprintf(res, "%lc %lc", (wint_t)128267, 0x2581);
-	  
-	}
-	
-  } else {
-	sprintf(res, "%lc %time min", (wint_t)128267, time);
-  }
+  //  if (state == 0) {
+  // 	sprintf(res, "%lc %lc", (wint_t)128267, 0x2587);
+  // }
   
+  if (life >= 84) {
+	sprintf(res, "%lc", 0x2587);
+	  
+  } else if (life < 84 && life >= 68) {
+	sprintf(res, "%lc", 0x2586);
+	  
+  } else if (life < 68 && life >= 52) {
+	sprintf(res, "%lc", 0x2585);
+
+  } else if (life < 52 && life >= 36) {
+	sprintf(res, "%lc", 0x2583);
+	  
+  } else if (life < 36 && life >= 16) {
+	sprintf(res, "%lc", 0x2582);
+	  
+  } else if (life < 16) {
+
+	sprintf(res, "%lc", 0x2581);
+	  
+  }
   
   return (char*) res;  
 }
@@ -160,8 +161,8 @@ main(void)
 	// tmutc = mktimes("%H:%M", tzutc);
 	tmhki = mktimes("%Y-%m-%d %H:%M", tzhelsinki);
 	  
-	status = smprintf("%s, L:%s, %s",
-					  battery, avgs, tmhki);
+	status = smprintf("L:%s, %s  %s",
+					  avgs, tmhki, battery);
 	setstatus(status);
 	free(avgs);
 	free(battery);

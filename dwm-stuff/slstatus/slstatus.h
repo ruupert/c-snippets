@@ -2,6 +2,7 @@
 
 /* battery */
 const char *mybattery_perc(const char *);
+const char *mytemp_perc(const char *);
 const char *battery_perc(const char *);
 const char *battery_power(const char *);
 const char *battery_state(const char *);

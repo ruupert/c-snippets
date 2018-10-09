@@ -24,16 +24,16 @@ list* create_list(void) {
   return tmp;
 }
 
-int find_char(node *n, char c) {
+node* find_char(node *n, char c) {
   printf("\t enter find_char() %c\n", c);
   if (n == NULL) {
 	printf("\t - node null\n");
-	return 0;
+	return NULL;
   }
   node* tmp = n;
   do {
 	if (tmp->key == c) {
-	  return 1;
+	  return tmp;
 	} 
 	if (tmp->next != NULL) {
 	  tmp = tmp->next;
@@ -41,10 +41,10 @@ int find_char(node *n, char c) {
   } while (tmp->next != NULL);
 
   
-  return 0;
+  return NULL;
 }
 
-int find(node *n, char* str) {
+node* find(node *n, char* str) {
   int len = strlen(str);
   node *ptr = n;
   int found;
@@ -61,10 +61,10 @@ int find(node *n, char* str) {
 	  }
 	}
 	if (found == 0) {
-	  return 0;
+	  return NULL;
 	}
   }
-  return 1;
+  return ptr->parent;
 }
 
 
@@ -122,13 +122,13 @@ void print(node *no, int lvl) {
   node *ptr = no;
   node *tmp;
   while (ptr->next != NULL) {
-	printf("%c",  ptr->key);
+	printf(" %c ",  ptr->key);
 	if (ptr->childs != NULL) {
 	  tmp = ptr->childs;
 	  if (tmp->key != '\0') {
-		printf(" ( " );
+		printf(" (" );
 		print(tmp, lvl+1);
-		printf(" ) ");
+		printf(") ");
 	  }
 	}
 	ptr = ptr->next;
@@ -139,13 +139,17 @@ void print(node *no, int lvl) {
 int main() {
   list *tree;
   tree = create_list();
-  FILE *fp = fopen("words.txt", "r");
+  
   char* buf = malloc(sizeof(char)*128);
+
+  char c;
+ 
+  size_t i = 0;
+
+  FILE *fp = fopen("words.txt", "r");
   if (!fp) {
 	return 0;
   }
-  char c;
-  size_t i = 0;
 	
   while ((c = getc(fp)) != EOF) {
 	//	printf("%d, ", i);
@@ -172,23 +176,37 @@ int main() {
   fclose(fp);
 
 
-  int res = find(tree->next, "beer");
-  printf("found %d", res);
+  node *reo = find(tree->next, "beer");
   printf("done, sleeping for 5 secs\n");
   sleep(5);
-
+  
+  
   //if (tree == NULL) return 0;
   //node *tmp = tree->next;
   
-  
-  /*  insert(tmp, "jopas");
-  insert(tmp, "jotain");
-  insert(tmp, "jokin");
-  insert(tmp, "jokinen");
-  insert(tmp, "jotakuta");
-  insert(tmp, "jopa");
-  insert(tmp, "jokin");
+  /*  
+  insert(tree->next, "jopas");
+  insert(tree->next, "jotain");
+  insert(tree->next, "jokin");
+  insert(tree->next, "jokinen");
+  insert(tree->next, "jotakuta");
+  insert(tree->next, "jopa");
+  insert(tree->next, "jokin");
   */
+  insert(tree->next, "jo");
+  insert(tree->next, "joi");
+  insert(tree->next, "jos");
+
+  node *res = find(tree->next, "joi");
+  printf("parent key: %c\n", res->parent->key);
+  printf("parents parent: %c\n", res->parent->parent->key);
+
+  while (res->parent != NULL)  {
+	printf("%c", res->key);
+	res = res->parent;
+  } 
+  printf("%c",  res->key);
+  printf("\n");
   print(tree->next, 0);
   return 0;
 }
