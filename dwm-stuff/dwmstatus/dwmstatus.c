@@ -1,24 +1,18 @@
-#define _BSD_SOURCE
+#define _DEFAULT_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <strings.h>
-#include <sys/time.h>
 #include <time.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <wchar.h>
 #include <locale.h>
-
+#include <fcntl.h>
 #include <X11/Xlib.h>
 
 #define RED   "\033[0;31m"
+#define PATH_BATT_CAPACITY "/sys/class/power_supply/BAT0/capacity"
 
-//char *tzutc = "UTC"
 char *tzhelsinki = "Europe/Helsinki";
 
 static Display *dpy;
@@ -97,24 +91,26 @@ loadavg(void)
   return smprintf("%.2f %.2f %.2f", avgs[0], avgs[1], avgs[2]);
 }
 
-char *
+int
 batterylife(void) {
 
-  int state, time, life;
-  size_t len;
+
   char *res;
   res = malloc(sizeof(char)*20);
-  len = sizeof(int);
-  sysctlbyname("hw.acpi.battery.state", &state, &len, NULL, 0);
-  sysctlbyname("hw.acpi.battery.time", &time, &len, NULL, 0);
-  sysctlbyname("hw.acpi.battery.life", &life, &len, NULL, 0);
-  
-  //  if (state == 0) {
-  // 	sprintf(res, "%lc %lc", (wint_t)128267, 0x2587);
-  // }
-  
+
+  int fd, life;
+  char inum[4];
+
+  if (-1 == (fd = open(PATH_BATT_CAPACITY,O_RDONLY))) {
+      perror("Could not open battery info for reading");
+      exit(-1);
+  }
+  read( fd, &inum, sizeof(inum) );
+
+  sscanf(inum, "%d", &life);
+  close(fd);
   if (life >= 84) {
-	sprintf(res, "%lc", 0x2587);
+	printf(res, "%lc", 0x2587);
 	  
   } else if (life < 84 && life >= 68) {
 	sprintf(res, "%lc", 0x2586);
@@ -134,7 +130,7 @@ batterylife(void) {
 	  
   }
   
-  return (char*) res;  
+  return (int) life; 
 }
 
 int
@@ -142,34 +138,28 @@ main(void)
 {
   setlocale(LC_ALL, "");
 
+
   char *status;
-  char *avgs;
-  //	char *tmar;
-  //	char *tmutc;
+  // char *avgs;
   char *tmhki;
-  char *battery;
+  int battery;
   
   if (!(dpy = XOpenDisplay(NULL))) {
 	fprintf(stderr, "dwmstatus: cannot open display.\n");
 	return 1;
   }
 	
-  for (;;sleep(90)) {
-	avgs = loadavg();
+  for (;;sleep(20)) {
+	// avgs = loadavg();
 	battery = batterylife();
-	//		tmar = mktimes("%H:%M", tzargentina);
-	// tmutc = mktimes("%H:%M", tzutc);
-	tmhki = mktimes("%Y-%m-%d %H:%M", tzhelsinki);
-	  
-	status = smprintf("L:%s, %s  %s",
-					  avgs, tmhki, battery);
+	tmhki = mktimes(" %Y-%m-%d %H:%M", tzhelsinki);
+	status = smprintf("%s %i", tmhki ,battery);
 	setstatus(status);
-	free(avgs);
-	free(battery);
+
+  }
+  free(&battery);
 	free(tmhki);
 	free(status);
-  }
-	
   XCloseDisplay(dpy);
 	
   return 0;
