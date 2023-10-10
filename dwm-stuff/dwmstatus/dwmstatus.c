@@ -23,17 +23,14 @@ smprintf(char *fmt, ...)
   va_list fmtargs;
   char *ret;
   int len;
-
   va_start(fmtargs, fmt);
   len = vsnprintf(NULL, 0, fmt, fmtargs);
   va_end(fmtargs);
-
   ret = malloc(++len);
   if (ret == NULL) {
-	perror("malloc");
-	exit(1);
+	  perror("malloc");
+	  exit(1);
   }
-
   va_start(fmtargs, fmt);
   vsnprintf(ret, len, fmt, fmtargs);
   va_end(fmtargs);
@@ -59,13 +56,13 @@ mktimes(char *fmt, char *tzname)
   tim = time(NULL);
   timtm = localtime(&tim);
   if (timtm == NULL) {
-	perror("localtime");
-	exit(1);
+	  perror("localtime");
+	  exit(1);
   }
 
   if (!strftime(buf, sizeof(buf)-1, fmt, timtm)) {
-	fprintf(stderr, "strftime == 0\n");
-	exit(1);
+  	fprintf(stderr, "strftime == 0\n");
+  	exit(1);
   }
 
   return smprintf("%s", buf);
@@ -94,42 +91,33 @@ loadavg(void)
 int
 batterylife(void) {
 
-
-  char *res;
-  res = malloc(sizeof(char)*20);
-
   int fd, life;
   char inum[4];
 
   if (-1 == (fd = open(PATH_BATT_CAPACITY,O_RDONLY))) {
       perror("Could not open battery info for reading");
-      exit(-1);
+      return -1;
   }
   read( fd, &inum, sizeof(inum) );
-
-  sscanf(inum, "%d", &life);
   close(fd);
+  sscanf(inum, "%d", &life);
+/*
+  char *res;
+  res = malloc(sizeof(char)*20);
   if (life >= 84) {
-	printf(res, "%lc", 0x2587);
-	  
+	  sprintf(res, "%lc", 0x2587);
   } else if (life < 84 && life >= 68) {
-	sprintf(res, "%lc", 0x2586);
-	  
+	  sprintf(res, "%lc", 0x2586);
   } else if (life < 68 && life >= 52) {
-	sprintf(res, "%lc", 0x2585);
-
-  } else if (life < 52 && life >= 36) {
-	sprintf(res, "%lc", 0x2583);
-	  
+  	sprintf(res, "%lc", 0x2585);
+} else if (life < 52 && life >= 36) {
+  	sprintf(res, "%lc", 0x2583);
   } else if (life < 36 && life >= 16) {
-	sprintf(res, "%lc", 0x2582);
-	  
+  	sprintf(res, "%lc", 0x2582);
   } else if (life < 16) {
-
-	sprintf(res, "%lc", 0x2581);
-	  
+    sprintf(res, "%lc", 0x2581);
   }
-  
+*/
   return (int) life; 
 }
 
@@ -138,24 +126,26 @@ main(void)
 {
   setlocale(LC_ALL, "");
 
-
   char *status;
   // char *avgs;
   char *tmhki;
   int battery;
   
   if (!(dpy = XOpenDisplay(NULL))) {
-	fprintf(stderr, "dwmstatus: cannot open display.\n");
-	return 1;
+  	fprintf(stderr, "dwmstatus: cannot open display.\n");
+  	return 1;
   }
 	
   for (;;sleep(20)) {
-	// avgs = loadavg();
-	battery = batterylife();
-	tmhki = mktimes(" %Y-%m-%d %H:%M", tzhelsinki);
-	status = smprintf("%s %i", tmhki ,battery);
-	setstatus(status);
-
+  	// avgs = loadavg();
+  	battery = batterylife();
+  	tmhki = mktimes(" %Y-%m-%d %H:%M", tzhelsinki);
+    if (battery == -1) {
+    	status = smprintf("%s", tmhki);
+    } else {
+    	status = smprintf("%s %i", tmhki ,battery);
+    }
+  	setstatus(status);
   }
   free(&battery);
 	free(tmhki);
